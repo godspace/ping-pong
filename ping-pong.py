@@ -7,6 +7,9 @@ H = 666
  
 window = display.set_mode((W, H))
 clock = time.Clock()
+
+font.init()
+gamefont = font.Font(None, 50)
  
  
 class GameSprites(sprite.Sprite):
@@ -22,16 +25,27 @@ class GameSprites(sprite.Sprite):
  
 class Ball(GameSprites):
     def move(self):
+        global score
         self.rect.x += self.xspeed
         self.rect.y += self.yspeed
         if self.rect.x > W - self.rect.width or self.rect.x < 0:
             self.xspeed *= -1
+            if self.rect.x > W - self.rect.width:
+                player_01.p_01 += 1
+            else:
+                player_02.p_02 += 1
+            self.rect.center = (W/2, H/2)
+            score = gamefont.render(str(player_01.p_01) + " : " + str(player_02.p_02), True, (0,0,0))
+
+
         if self.rect.y > H - self.rect.height or self.rect.y < 0:
             self.yspeed *= -1
  
 ball = Ball("ball.png", 50, 50, W//2, H//2, 10, 5)
 
 class Player(GameSprites):
+    p_01 = 0
+    p_02 = 0
     def move_01(self):
         keys = key.get_pressed()
         if keys[K_w]:
@@ -55,6 +69,9 @@ class Player(GameSprites):
 player_01 = Player("player.png",40, 80, 40, H/2, 0, 10)
 player_02 = Player("player.png",40, 80, W - 40, H/2, 0, 10)
 
+score = gamefont.render(str(player_01.p_01) + " : " + str(player_02.p_02), True, (0,0,0))
+
+
 game = True
 while game:
     for e in event.get():
@@ -62,6 +79,7 @@ while game:
             game = False
             print(game, e.type)
     window.fill((235, 80, 67))
+    window.blit(score, (W/2, 20))
     ball.draw()
     ball.move()
     player_01.draw()
